@@ -38,9 +38,10 @@ class Line{
 class Lines{
     private:
         std::vector<Line*> l;
-        std::vector<std::vector<bool>> partOfLine;
+        std::vector<std::vector<Point>> ps; 
+        std::vector<std::vector<int>> partOfLine;
         xy nextPoint(std::vector<std::vector<cols>> pixels, int x, int y, int lastDir);
-        void followLine(std::vector<std::vector<cols>> pixels, int startX, int startY, SDL_Surface* img);
+        void followLine(std::vector<std::vector<cols>> pixels, int startX, int startY);
     public:
         Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img);
         ~Lines();

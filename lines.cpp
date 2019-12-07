@@ -11,7 +11,8 @@ Line::Line(std::vector<Point> p, SDL_Surface* img){
         colors[i*3+1] = p[i].c.g;
         colors[i*3+2] = p[i].c.b;
     }
-    visiblePoints = p.size();
+    visiblePoints = 1;
+    // visiblePoints = p.size();
 }
 
 Line::~Line(){
@@ -39,7 +40,7 @@ xy Lines::nextPoint(std::vector<std::vector<cols>> pixels, int x, int y, int las
         for (int j = -1; j < 2; j++){
             if ((i != 0 || j != 0) && x+i >= 0 && x+i < pixels[y].size() && y+j >= 0 && y+j < pixels.size()){
                 float otherCol = pixels[y+j][x+i].r;
-                if (otherCol < thresh2 && !partOfLine[y+j][x+i]){
+                if (otherCol < thresh2 && partOfLine[y+j][x+i] == -1){
                     possiblePoints.push_back({i, j, pixels[y+j][x+i]});
                 }
             }
@@ -70,7 +71,7 @@ xy Lines::nextPoint(std::vector<std::vector<cols>> pixels, int x, int y, int las
     return curPoint;
 }
 
-void Lines::followLine(std::vector<std::vector<cols>> pixels, int startX, int startY, SDL_Surface* img){
+void Lines::followLine(std::vector<std::vector<cols>> pixels, int startX, int startY){
     int curX = startX;
     int curY = startY;
     int dir = 0;
@@ -78,7 +79,7 @@ void Lines::followLine(std::vector<std::vector<cols>> pixels, int startX, int st
     bool contin = true;
     std::vector<Point> pts;
     while (contin){
-        partOfLine[curY][curX] = true;
+        partOfLine[curY][curX] = -2;
         pts.push_back({curX, curY, pixels[curY][curX]});
         // Find the next pixel to add to the line.
         xy nP = nextPoint(pixels, curX, curY, dir);
@@ -113,7 +114,7 @@ void Lines::followLine(std::vector<std::vector<cols>> pixels, int startX, int st
             dir = nP.lastDir;
             curX = nP.x;
             curY = nP.y;
-            partOfLine[curY][curX] = true;
+            partOfLine[curY][curX] = -2;
             reversePts.push_back({curX, curY, pixels[curY][curX]});
         }
     } 
@@ -122,26 +123,59 @@ void Lines::followLine(std::vector<std::vector<cols>> pixels, int startX, int st
         pts.push_back(reversePts[i]);
     }
     reversePts.clear();
-    // Make our line!
-    l.push_back(new Line(pts, img));
+    int newID = ps.size();
+    // It turns out that there are many "lines" that are only 1-30 pixels long. Let's add those into our real lines.
+    if (ps.size() != 0 && pts.size() < 30){
+        // Find a line that is a pixel away from one of the points.
+        for (int i = 0; i < pts.size(); i++){
+            int pX = pts[i].x;
+            int pY = pts[i].y;
+            // Check adjacent points and see what lines they belong to.
+            for (int x = -1; x < 2; x++){
+                for (int y = -1; y < 2; y++){
+                    if (x != 0 || y != 0){
+                        if (pY+y > 0 && pY+y < partOfLine.size() && pX+x > 0 && pX+x < partOfLine[0].size() 
+                            && partOfLine[pY+y][pX+x] > -1 && newID == ps.size()){
+                            // This point belongs to another line.
+                            newID = partOfLine[pY+y][pX+x];
+                        }
+                    }
+                }
+            }
+            if (newID != ps.size()) break;
+        }   
+    }
+    if (newID == ps.size()){
+        std::vector<Point> p;
+        ps.push_back(p);
+    }
+    for (int i = 0; i < pts.size(); i++){
+        ps[newID].push_back(pts[i]);
+        partOfLine[pts[i].y][pts[i].x] = newID;
+    }
+    //l.push_back(new Line(pts));
 }
 
 Lines::Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img){
     for (int i = 0; i < pixels.size(); i++){
-        std::vector<bool> pLine;
+        std::vector<int> pLine;
         for (int j = 0; j < pixels[i].size(); j++){
-            pLine.push_back(false);
+            pLine.push_back(-1);
         }
         partOfLine.push_back(pLine);
     }
     // Now, we actually have to separate the pixels into lines... :|
     for (int y = 0; y < pixels.size(); y++){
         for (int x = 0; x < pixels[y].size(); x++){
-            if (!partOfLine[y][x] && pixels[y][x].r < thresh2){
+            if (partOfLine[y][x] == -1 && pixels[y][x].r < thresh2){
                 // Make a line.
-                followLine(pixels, x, y, img);
+                followLine(pixels, x, y);
             }
         }
+    }
+    // Now, with our points, we make the lines.
+    for (int i = 0; i < ps.size(); i++){
+        l.push_back(new Line(ps[i], img));
     }
 }
 
