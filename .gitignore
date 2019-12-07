@@ -1,0 +1,6 @@
+*.a
+*.o
+*.png
+*.bmp
+*.gif
+.vscode/*
