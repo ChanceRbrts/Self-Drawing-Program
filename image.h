@@ -2,17 +2,11 @@
 #define sdp_image
 
 #include "utils.h"
-#include <vector>
-
-struct cols{
-    float r;
-    float g;
-    float b;
-    float a;
-};
+#include "lines.h"
 
 class SDPImage{
     private:
+        Lines* lines;
         SDL_Surface* img;
         std::vector<std::vector<cols>> pixels;
         void edgeDetection();

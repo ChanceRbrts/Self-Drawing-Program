@@ -24,6 +24,7 @@ SDPImage::SDPImage(char* imageTitle){
         pixels.push_back(colors);
     }
     edgeDetection();
+    lines = new Lines(pixels, img);
 }
 
 SDPImage::~SDPImage(){
@@ -31,7 +32,8 @@ SDPImage::~SDPImage(){
 }
 
 void SDPImage::draw(float scale){
-    drawImage(scale);
+    lines->draw(scale);
+    // drawImage(scale);
 }
 
 void SDPImage::drawImage(float scale){
@@ -57,6 +59,8 @@ void SDPImage::drawImage(float scale){
     glDrawArrays(GL_POINTS, 0, img->w*img->h);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
+    delete[] colorPoints;
+    delete[] vertexPoints;
 }
 
 int SDPImage::getWidth(){
@@ -98,7 +102,7 @@ void SDPImage::edgeDetection(){
             }
             float trueAvg = (abs(avgR)+abs(avgG)+abs(avgB))/3;
             trueAvg = 1-trueAvg;
-            //trueAvg = trueAvg > 0.9?1:trueAvg/1.5;
+            trueAvg = trueAvg > thresh1?(trueAvg > thresh2?1:trueAvg):trueAvg/1.5;
             newRow.push_back({trueAvg, trueAvg, trueAvg, 1});
         }
         newPixels.push_back(newRow);

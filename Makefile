@@ -36,7 +36,7 @@ endif
 .cpp.o:
 	g++ -std=c++11 -o $@ -c $(CFLG) $<
 
-selfdraw: image.o main.o
+selfdraw: main.o image.o lines.o
 	g++ -std=c++11 -O3 -o $@ $^ $(LIBS) 
 
 clean:

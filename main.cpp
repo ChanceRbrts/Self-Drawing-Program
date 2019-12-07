@@ -30,7 +30,7 @@ void initialize(){
 
 void draw(SDPImage* img, SDL_Window* win, float scale){
     // Start the Drawing.
-    glClearColor(0.5, 0.5, 0.5, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glPushAttrib(GL_TRANSFORM_BIT|GL_ENABLE_BIT);
     // Draw the image.
