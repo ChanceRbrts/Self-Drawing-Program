@@ -58,6 +58,7 @@ int main(int argc, char** argv){
     std::string title = "Drawing" + std::string(argv[1]);
     SDL_Window* win = SDL_CreateWindow(title.c_str(), 0, 0, img->getWidth()*scale, img->getHeight()*scale, SDL_WINDOW_OPENGL);
     SDL_GL_CreateContext(win);
+    double curTime = 0;
     // Draw Loop
     while (1){
         SDL_Event e;
@@ -66,6 +67,12 @@ int main(int argc, char** argv){
                 exit(0);
             }
         }
+        double newTime = SDL_GetTicks()/1000.0;
+        if (curTime != 0){
+            double deltaTime = newTime-curTime;
+            img->update(deltaTime);
+        }
+        curTime = newTime;
         draw(img, win, scale);
     }
 }

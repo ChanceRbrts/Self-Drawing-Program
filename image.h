@@ -16,6 +16,7 @@ class SDPImage{
         int getPixelData();
         int getWidth();
         int getHeight();
+        void update(double deltaTime);
         void draw(float scale);
         void drawImage(float scale);
 };

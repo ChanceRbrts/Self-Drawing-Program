@@ -11,13 +11,27 @@ Line::Line(std::vector<Point> p, SDL_Surface* img){
         colors[i*3+1] = p[i].c.g;
         colors[i*3+2] = p[i].c.b;
     }
-    visiblePoints = 1;
+    visiblePoints = 0;
+    maxVisPoint = p.size();
+    time = 0;
+    offsetTime = 0;
+    timeForPoint = 0.0035;
     // visiblePoints = p.size();
 }
 
 Line::~Line(){
     delete pos;
     delete colors;
+}
+
+void Line::update(double deltaTime){
+    time += deltaTime;
+    visiblePoints = (time/timeForPoint-offsetTime);
+    if (visiblePoints > maxVisPoint){
+        visiblePoints = maxVisPoint;
+    } else if (visiblePoints < 0){
+        visiblePoints = 0;
+    }
 }
 
 void Line::draw(float scale){
@@ -176,6 +190,12 @@ Lines::Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img){
     // Now, with our points, we make the lines.
     for (int i = 0; i < ps.size(); i++){
         l.push_back(new Line(ps[i], img));
+    }
+}
+
+void Lines::update(double deltaTime){
+    for (int i = 0; i < l.size(); i++){
+        l[i]->update(deltaTime);
     }
 }
 

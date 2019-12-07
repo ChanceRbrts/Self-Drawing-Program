@@ -27,11 +27,16 @@ struct xy{
 class Line{
     private:
         int visiblePoints;
+        int maxVisPoint;
         float* pos;
         float* colors;
+        double time;
+        dobule offsetTime;
+        double timeForPoint;
     public:
         Line(std::vector<Point> p, SDL_Surface* img);
         ~Line();
+        void update(double deltaTime);
         void draw(float scale);
 };
 
@@ -45,6 +50,7 @@ class Lines{
     public:
         Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img);
         ~Lines();
+        void update(double deltaTime);
         void draw(float scale);
 };
 
