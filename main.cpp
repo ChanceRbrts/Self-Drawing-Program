@@ -50,7 +50,7 @@ int main(int argc, char** argv){
     
     initialize();
     // Make a window for the image.
-    float scale = 0;
+    float scale = 1;
     float imgScale = 1;
     if (argc >= 3){
         sscanf(argv[2], "%f", &scale);
