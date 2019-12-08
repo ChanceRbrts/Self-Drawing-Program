@@ -59,20 +59,36 @@ int main(int argc, char** argv){
     SDL_Window* win = SDL_CreateWindow(title.c_str(), 0, 0, img->getWidth()*scale, img->getHeight()*scale, SDL_WINDOW_OPENGL);
     SDL_GL_CreateContext(win);
     double curTime = 0;
+    bool spacebarPress = false;
+    bool spacebarHold = false;
     // Draw Loop
     while (1){
         SDL_Event e;
         while (SDL_PollEvent(&e)){
-            if (e.type == SDL_QUIT){
+            if (e.type == SDL_KEYDOWN){
+                if (e.key.keysym.sym == SDLK_SPACE){
+                    if (!spacebarHold){
+                        spacebarPress = true;
+                    }
+                    spacebarHold = true;
+                } else if (e.key.keysym.sym == SDLK_ESCAPE){
+                    exit(0);
+                }
+            } else if (e.type == SDL_KEYUP){
+                if (e.key.keysym.sym == SDLK_SPACE){
+                    spacebarHold = false;
+                }
+            } else if (e.type == SDL_QUIT){
                 exit(0);
             }
         }
         double newTime = SDL_GetTicks()/1000.0;
         if (curTime != 0){
             double deltaTime = newTime-curTime;
-            img->update(deltaTime);
+            img->update(deltaTime, spacebarPress);
         }
         curTime = newTime;
         draw(img, win, scale);
+        spacebarPress = false;
     }
 }

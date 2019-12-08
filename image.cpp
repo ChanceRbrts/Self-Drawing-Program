@@ -31,8 +31,8 @@ SDPImage::~SDPImage(){
     SDL_FreeSurface(img);
 }
 
-void SDPImage::update(double deltaTime){
-    lines->update(deltaTime);
+void SDPImage::update(double deltaTime, bool spacePress){
+    lines->update(deltaTime, spacePress);
 }
 
 void SDPImage::draw(float scale){

@@ -1,6 +1,6 @@
 #include "lines.h"
 
-Line::Line(std::vector<Point> p, SDL_Surface* img){
+Line::Line(std::vector<Point> p, SDL_Surface* img, int maxPoints){
     pos = new float[p.size()*3];
     colors = new float[p.size()*3];
     for (int i = 0; i < p.size(); i++){
@@ -14,9 +14,19 @@ Line::Line(std::vector<Point> p, SDL_Surface* img){
     visiblePoints = 0;
     maxVisPoint = p.size();
     time = 0;
-    offsetTime = 0;
-    timeForPoint = 0.0035;
-    // visiblePoints = p.size();
+    maxTime = maxPoints*timeForPoint+1;
+    timeForPoint = 0.0025;
+    toggle = true;
+    float randomMult = rand()/(1.0*RAND_MAX);
+    if (p.size() < 30){
+        // If we have less than 30 points, let's just draw it after the max points.
+        offsetTime = maxPoints*timeForPoint-1+randomMult*2.0;
+    } else{
+        // If we have the max amount of points, we want to start immediately.
+        // If we have a mid amount of points, we want to delay stuff a bit.
+        // At the same time, we want this to finish as the final line is finishing with it's drawing.
+        offsetTime = randomMult*timeForPoint*(maxPoints-p.size());
+    }
 }
 
 Line::~Line(){
@@ -24,14 +34,22 @@ Line::~Line(){
     delete colors;
 }
 
-void Line::update(double deltaTime){
-    time += deltaTime;
-    visiblePoints = (time/timeForPoint-offsetTime);
+void Line::update(double deltaTime, bool spacePress){
+    // Space changes whether the lines and drawn or erased.
+    if (toggle){
+        time += deltaTime;
+        if (time > maxTime) time = maxTime; 
+    } else {
+        time -= deltaTime;
+        if (time < 0) time = 0;
+    }
+    visiblePoints = (time/timeForPoint)-offsetTime;
     if (visiblePoints > maxVisPoint){
         visiblePoints = maxVisPoint;
     } else if (visiblePoints < 0){
         visiblePoints = 0;
     }
+    if (spacePress) toggle = !toggle;
 }
 
 void Line::draw(float scale){
@@ -187,15 +205,22 @@ Lines::Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img){
             }
         }
     }
+    // Let's get the max amount of points in a line.
+    int maxPoints = 0;
+    for (int i = 0; i < ps.size(); i++){
+        if (ps[i].size() > maxPoints){
+            maxPoints = ps[i].size();
+        }
+    }
     // Now, with our points, we make the lines.
     for (int i = 0; i < ps.size(); i++){
-        l.push_back(new Line(ps[i], img));
+        l.push_back(new Line(ps[i], img, maxPoints));
     }
 }
 
-void Lines::update(double deltaTime){
+void Lines::update(double deltaTime, bool spacePress){
     for (int i = 0; i < l.size(); i++){
-        l[i]->update(deltaTime);
+        l[i]->update(deltaTime, spacePress);
     }
 }
 

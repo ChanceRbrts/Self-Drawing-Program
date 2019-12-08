@@ -2,6 +2,7 @@
 #define sdp_lines
 
 #include "utils.h"
+#include <random>
 #define SDP_LU 1
 #define SDP_U 2
 #define SDP_RU 3
@@ -31,12 +32,14 @@ class Line{
         float* pos;
         float* colors;
         double time;
-        dobule offsetTime;
+        double offsetTime;
+        double maxTime;
         double timeForPoint;
+        bool toggle;
     public:
-        Line(std::vector<Point> p, SDL_Surface* img);
+        Line(std::vector<Point> p, SDL_Surface* img, int maxPoints);
         ~Line();
-        void update(double deltaTime);
+        void update(double deltaTime, bool spacePress);
         void draw(float scale);
 };
 
@@ -50,7 +53,7 @@ class Lines{
     public:
         Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img);
         ~Lines();
-        void update(double deltaTime);
+        void update(double deltaTime, bool spacePress);
         void draw(float scale);
 };
 
