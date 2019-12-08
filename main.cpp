@@ -44,17 +44,27 @@ void draw(SDPImage* img, SDL_Window* win, float scale){
 int main(int argc, char** argv){
     // Make sure we actually have an image in the second argument.
     if (argc < 2){
-        fprintf(stderr, "USAGE: ./self-drawing image (scale)");
+        fprintf(stderr, "USAGE: ./self-drawing image (scale of display) (scale of image)");
         exit(1);
     }
     
     initialize();
     // Make a window for the image.
     float scale = 0;
+    float imgScale = 1;
     if (argc >= 3){
         sscanf(argv[2], "%f", &scale);
     }
-    SDPImage* img = new SDPImage(argv[1]);
+    if (argc >= 4){
+        sscanf(argv[3], "%f", &imgScale);
+    }
+    if (imgScale > 1){
+        fprintf(stderr, "ERROR: Scale of image can't be more than 1.");
+        exit(1);
+    }
+    // If we have an imgScale of 0.25, our scale should be 4*scale.
+    scale = scale/imgScale;
+    SDPImage* img = new SDPImage(argv[1], imgScale);
     std::string title = "Drawing" + std::string(argv[1]);
     SDL_Window* win = SDL_CreateWindow(title.c_str(), 0, 0, img->getWidth()*scale, img->getHeight()*scale, SDL_WINDOW_OPENGL);
     SDL_GL_CreateContext(win);

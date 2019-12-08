@@ -37,7 +37,7 @@ class Line{
         double timeForPoint;
         bool toggle;
     public:
-        Line(std::vector<Point> p, SDL_Surface* img, int maxPoints);
+        Line(std::vector<Point> p, SDL_Surface* img, float iScale, int maxPoints);
         ~Line();
         void update(double deltaTime, bool spacePress);
         void draw(float scale);
@@ -51,7 +51,7 @@ class Lines{
         xy nextPoint(std::vector<std::vector<cols>> pixels, int x, int y, int lastDir);
         void followLine(std::vector<std::vector<cols>> pixels, int startX, int startY);
     public:
-        Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img);
+        Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img, float iScale);
         ~Lines();
         void update(double deltaTime, bool spacePress);
         void draw(float scale);

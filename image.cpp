@@ -1,13 +1,13 @@
 #include "image.h"
 
-SDPImage::SDPImage(char* imageTitle){
+SDPImage::SDPImage(char* imageTitle, float imgScale){
     // Load an image.
     img = IMG_Load(imageTitle);
     if (!img){
         fprintf(stderr, "ERROR: Image %s doesn't exist.", imageTitle);
         exit(1);
     }
-
+    iScale = imgScale;
     // Get the pixel data.
     unsigned int* pix = (unsigned int*)(img->pixels);
     for (int i = 0; i < img->h; i++){
@@ -23,12 +23,52 @@ SDPImage::SDPImage(char* imageTitle){
         }
         pixels.push_back(colors);
     }
+    // Scale stuff down before edge detection.
+    scaleImage(imgScale);
     edgeDetection();
-    lines = new Lines(pixels, img);
+    lines = new Lines(pixels, img, imgScale);
 }
 
 SDPImage::~SDPImage(){
     SDL_FreeSurface(img);
+}
+
+void SDPImage::scaleImage(float imgScale){
+    // Do nothing if our imgScale is 1.
+    if (abs(imgScale-1) < 0.001) return;
+    std::vector<std::vector<cols>> newPixels;
+    for (int i = 0; i < pixels.size()*imgScale; i++){
+        std::vector<cols> nPixels;
+        for (int j = 0; j < pixels[0].size()*imgScale; j++){
+            float firstX = j/imgScale;
+            float lastX = (j+1)/imgScale;
+            float firstY = i/imgScale;
+            float lastY = (i+1)/imgScale;
+            float totalWeight = 0;
+            float r = 0;
+            float g = 0;
+            float b = 0;
+            // Do scaling down by checking all pixels in that pixel.
+            for (int x = floor(firstX); x < ceil(lastX); x++){
+                float weightX = 1;
+                if (x == int(floor(firstX))) weightX = 1-(firstX-x);
+                if (x == int(ceil(lastX))) weightX = 1-(x-lastX);
+                for (int y = floor(firstY); y < ceil(lastY); y++){
+                    float weightY = 1;
+                    if (y == int(floor(firstY))) weightY = 1-(firstY-y);
+                    if (y == int(ceil(lastY))) weightY = 1-(y-lastY);
+                    totalWeight += weightX*weightY;
+                    r += pixels[y][x].r*weightX*weightY;
+                    g += pixels[y][x].g*weightX*weightY;
+                    b += pixels[y][x].b*weightX*weightY;
+                }
+            }
+            nPixels.push_back({r/totalWeight, g/totalWeight, b/totalWeight, 1});
+        }
+        newPixels.push_back(nPixels);
+    }
+    pixels.swap(newPixels);
+    newPixels.clear();
 }
 
 void SDPImage::update(double deltaTime, bool spacePress){
@@ -68,11 +108,11 @@ void SDPImage::drawImage(float scale){
 }
 
 int SDPImage::getWidth(){
-    return img->w;
+    return img->w*iScale;
 }
 
 int SDPImage::getHeight(){
-    return img->h;
+    return img->h*iScale;
 }
 
 void SDPImage::edgeDetection(){

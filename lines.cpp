@@ -1,11 +1,11 @@
 #include "lines.h"
 
-Line::Line(std::vector<Point> p, SDL_Surface* img, int maxPoints){
+Line::Line(std::vector<Point> p, SDL_Surface* img, float iScale, int maxPoints){
     pos = new float[p.size()*3];
     colors = new float[p.size()*3];
     for (int i = 0; i < p.size(); i++){
-        pos[i*3] = p[i].x*2.0/(img->w*1.0)-1;
-        pos[i*3+1] = 1-p[i].y*2.0/(img->h*1.0);
+        pos[i*3] = p[i].x*2.0/(img->w*iScale*1.0)-1;
+        pos[i*3+1] = 1-p[i].y*2.0/(img->h*iScale*1.0);
         pos[i*3+2] = 0;
         colors[i*3] = p[i].c.r;
         colors[i*3+1] = p[i].c.g;
@@ -188,7 +188,7 @@ void Lines::followLine(std::vector<std::vector<cols>> pixels, int startX, int st
     //l.push_back(new Line(pts));
 }
 
-Lines::Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img){
+Lines::Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img, float iScale){
     for (int i = 0; i < pixels.size(); i++){
         std::vector<int> pLine;
         for (int j = 0; j < pixels[i].size(); j++){
@@ -214,7 +214,7 @@ Lines::Lines(std::vector<std::vector<cols>> pixels, SDL_Surface* img){
     }
     // Now, with our points, we make the lines.
     for (int i = 0; i < ps.size(); i++){
-        l.push_back(new Line(ps[i], img, maxPoints));
+        l.push_back(new Line(ps[i], img, iScale, maxPoints));
     }
 }
 

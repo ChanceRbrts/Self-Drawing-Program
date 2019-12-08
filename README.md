@@ -6,4 +6,4 @@ This is a program that will eventually take an image, break it down into lines, 
 Make sure you have both OpenGL and SDL. (TODO: Make instructions to get GL and SDL.)
 
 Run make to compile the program.
-Run `./drawing $(IMAGELOCATION)`, replacing `$(IMAGELOCATION)` with the location of the image.
+Run `./drawing (image) (displayscale) (imagescale)`, where `displayscale` is the scale of the window relative to the original size of the image and `imagescale` is the size of the image relative to the original size of the image.
