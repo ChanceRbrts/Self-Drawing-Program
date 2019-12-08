@@ -65,7 +65,7 @@ int main(int argc, char** argv){
     // If we have an imgScale of 0.25, our scale should be 4*scale.
     scale = scale/imgScale;
     SDPImage* img = new SDPImage(argv[1], imgScale);
-    std::string title = "Drawing" + std::string(argv[1]);
+    std::string title = "Drawing " + std::string(argv[1]);
     SDL_Window* win = SDL_CreateWindow(title.c_str(), 0, 0, img->getWidth()*scale, img->getHeight()*scale, SDL_WINDOW_OPENGL);
     SDL_GL_CreateContext(win);
     double curTime = 0;
